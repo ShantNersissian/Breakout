@@ -1,5 +1,5 @@
-class starter{
+class starter extends Frame{
     public static void main(String[] args){
-        System.out.print("Hello");
+        Frame frame = new Frame();
     }
 }
