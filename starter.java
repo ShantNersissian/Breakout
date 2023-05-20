@@ -1,5 +1,5 @@
-class starter extends Frame{
-    public static void main(String[] args){
-        Frame frame = new Frame();
+class starter extends Breakout{
+    public static void main(String[] args) {
+        new Breakout();
     }
 }
