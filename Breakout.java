@@ -1,104 +1,160 @@
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
 
-public class Breakout extends JPanel implements KeyListener {
-    private int width = 920;
-    private int height = 540;
-    private int paddleW = 80;
-    private int paddleH = 10;
-    private int ballR = 10;
-    private int brickW = 60;
-    private int brickH = 20;
-    private int bricksN = 40;
-    private int paddleV = 5;
-    private int ballV = 2;
+public class Breakout extends JFrame {
+    private static final int WIDTH = 950;
+    private static final int HEIGHT = 600;
+    private static final int PADDLE_WIDTH = 100;
+    private static final int PADDLE_HEIGHT = 10;
+    private static final int BALL_SIZE = 20;
+    private static final int BRICK_WIDTH = 80;
+    private static final int BRICK_HEIGHT = 20;
+    private static final int NUM_BRICKS = 50;
+    private static final int FPS = 60;
+    private static final int DELAY = 1000 / FPS;
 
+    private JPanel gamePanel;
+    private Timer timer;
     private int paddleX;
-    private int ballX;
-    private int ballY;
-    private int ballXV;
-    private int ballYV;
+    private int ballX, ballY;
+    private int ballXSpeed, ballYSpeed;
+    private boolean isRunning;
+    private boolean isGameOver;
     private boolean[] bricks;
 
-    private int brickColumns = 8;
-
     public Breakout() {
-        JFrame frame = new JFrame("Breakout");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(width, height);
-        frame.setResizable(false);
-        frame.addKeyListener(this);
-        frame.add(this);
-        frame.setVisible(true);
+        initGame();
+        initComponents();
+        addListeners();
+    }
 
-        paddleX = width / 2 - paddleW / 2;
-        ballX = width / 2 - ballR;
-        ballY = height / 2 - ballR;
-        ballXV = ballV;
-        ballYV = ballV;
-
-        bricks = new boolean[bricksN];
-        for (int i = 0; i < bricksN; i++) {
+    private void initGame() {
+        paddleX = WIDTH / 2 - PADDLE_WIDTH / 2;
+        ballX = WIDTH / 2 - BALL_SIZE / 2;
+        ballY = HEIGHT / 2 - BALL_SIZE / 2;
+        ballXSpeed = 4;
+        ballYSpeed = -4;
+        isRunning = true;
+        isGameOver = false;
+        bricks = new boolean[NUM_BRICKS];
+        for (int i = 0; i < NUM_BRICKS; i++) {
             bricks[i] = true;
         }
-        
-        setFocusable(true); // Add this line to make the panel focusable
-        requestFocusInWindow(); // Add this line to request focus for keyboard input
-        
-        repaint(); // Add this line to call the paintComponent method
     }
 
-    @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
+    private void initComponents() {
+        gamePanel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                drawGame(g);
+            }
+        };
+        gamePanel.setPreferredSize(new Dimension(WIDTH, HEIGHT));
+        gamePanel.setBackground(Color.BLACK);
 
-        setBackground(Color.BLACK); // Set background color to black
+        Container container = getContentPane();
+        container.setLayout(new BorderLayout());
+        container.add(gamePanel, BorderLayout.CENTER);
 
-        // Draw paddle
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        pack();
+        setTitle("Breakout");
+        setLocationRelativeTo(null);
+        setResizable(false);
+        setVisible(true);
+    }
+
+    private void addListeners() {
+        gamePanel.addMouseMotionListener(new MouseMotionAdapter() {
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                paddleX = e.getX() - PADDLE_WIDTH / 2;
+            }
+        });
+
+        timer = new Timer(DELAY, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                updateGame();
+                gamePanel.repaint();
+            }
+        });
+        timer.start();
+    }
+
+    private void drawGame(Graphics g) {
+        if (isGameOver) {
+            g.setColor(Color.WHITE);
+            g.setFont(new Font("Arial", Font.BOLD, 48));
+            g.drawString("Game Over", WIDTH / 2 - 120, HEIGHT / 2);
+            timer.stop();
+            return;
+        }
+
         g.setColor(Color.WHITE);
-        g.fillRect(paddleX, height - paddleH, paddleW, paddleH);
+        g.fillRect(paddleX, HEIGHT - PADDLE_HEIGHT - 10, PADDLE_WIDTH, PADDLE_HEIGHT);
 
-        // Draw ball
         g.setColor(Color.WHITE);
-        g.fillOval(ballX, ballY, ballR * 2, ballR * 2);
+        g.fillOval(ballX, ballY, BALL_SIZE, BALL_SIZE);
 
-        // Draw bricks
-        for (int i = 0; i < bricksN; i++) {
+        int brickCount = 0;
+        for (int i = 0; i < NUM_BRICKS; i++) {
             if (bricks[i]) {
-                int column = i % brickColumns;
-                int row = i / brickColumns;
-                int brickX = column * (brickW + 2) + 2;
-                int brickY = row * (brickH + 2) + 50;
+                int brickX = (i % 10) * (BRICK_WIDTH + 10) + 30;
+                int brickY = (i / 10) * (BRICK_HEIGHT + 10) + 50;
                 g.setColor(Color.WHITE);
-                g.fillRect(brickX, brickY, brickW, brickH);
+                g.fillRect(brickX, brickY, BRICK_WIDTH, BRICK_HEIGHT);
+                brickCount++;
             }
         }
-    }
 
-    @Override
-    public void keyPressed(KeyEvent e) {
-        if (e.getKeyCode() == KeyEvent.VK_A || e.getKeyCode() == KeyEvent.VK_LEFT) {
-            movePaddleLeft();
-        } else if (e.getKeyCode() == KeyEvent.VK_D || e.getKeyCode() == KeyEvent.VK_RIGHT) {
-            movePaddleRight();
+        if (brickCount == 0) {
+            g.setColor(Color.WHITE);
+            g.setFont(new Font("Arial", Font.BOLD, 48));
+            g.drawString("You Win!", WIDTH / 2 - 100, HEIGHT / 2);
+            timer.stop();
         }
     }
 
-    private void movePaddleRight() {
-    }
+    private void updateGame() {
+        if (!isRunning) {
+            return;
+        }
 
-    private void movePaddleLeft() {
-    }
+        ballX += ballXSpeed;
+        ballY += ballYSpeed;
 
-    @Override
-    public void keyReleased(KeyEvent e) {
-    }
+        if (ballX <= 0 || ballX + BALL_SIZE >= WIDTH) {
+            ballXSpeed = -ballXSpeed;
+        }
 
-    @Override
-    public void keyTyped(KeyEvent e) {
+        if (ballY <= 0) {
+            ballYSpeed = -ballYSpeed;
+        }
+
+        if (ballY + BALL_SIZE >= HEIGHT) {
+            isGameOver = true;
+        }
+
+        if (ballY + BALL_SIZE >= HEIGHT - PADDLE_HEIGHT - 10 && ballX + BALL_SIZE >= paddleX &&
+                ballX <= paddleX + PADDLE_WIDTH) {
+            ballYSpeed = -ballYSpeed;
+        }
+
+        for (int i = 0; i < NUM_BRICKS; i++) {
+            if (bricks[i]) {
+                int brickX = (i % 10) * (BRICK_WIDTH + 10) + 30;
+                int brickY = (i / 10) * (BRICK_HEIGHT + 10) + 50;
+                Rectangle brickRect = new Rectangle(brickX, brickY, BRICK_WIDTH, BRICK_HEIGHT);
+                Rectangle ballRect = new Rectangle(ballX, ballY, BALL_SIZE, BALL_SIZE);
+                if (brickRect.intersects(ballRect)) {
+                    bricks[i] = false;
+                    ballYSpeed = -ballYSpeed;
+                    break;
+                }
+            }
+        }
     }
 }

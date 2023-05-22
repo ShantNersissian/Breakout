@@ -1,5 +1,5 @@
-class starter extends Breakout{
+public class starter {
     public static void main(String[] args) {
-        Breakout breakout = new Breakout();
+        new Breakout();
     }
 }
