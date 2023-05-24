@@ -1,6 +1,8 @@
-import javax.swing.*;
 import java.awt.*;
+import javax.swing.*;
 import java.awt.event.*;
+import javax.swing.border.*;
+
 
 public class Breakout extends JFrame {
     private static final int WIDTH = 950;
@@ -151,8 +153,7 @@ public class Breakout extends JFrame {
             }
         }
 
-        if (ballY + BALL_SIZE >= HEIGHT - PADDLE_HEIGHT - 10 && ballX + BALL_SIZE >= paddleX &&
-                ballX <= paddleX + PADDLE_WIDTH) {
+        if (ballY + BALL_SIZE >= HEIGHT - PADDLE_HEIGHT - 10 && ballX + BALL_SIZE >= paddleX && ballX <= paddleX + PADDLE_WIDTH) {
             ballYSpeed = -ballYSpeed;
         }
 
