@@ -11,7 +11,7 @@ public class Breakout extends JFrame {
     private static final int BRICK_WIDTH = 80;
     private static final int BRICK_HEIGHT = 20;
     private static final int NUM_BRICKS = 50;
-    private static final int FPS = 60;
+    private static final int FPS = 240;
     private static final int DELAY = 1000 / FPS;
 
     private JPanel gamePanel;
@@ -22,6 +22,7 @@ public class Breakout extends JFrame {
     private boolean isRunning;
     private boolean isGameOver;
     private boolean[] bricks;
+    private int lives;
 
     public Breakout() {
         initGame();
@@ -35,6 +36,7 @@ public class Breakout extends JFrame {
         ballY = HEIGHT / 2 - BALL_SIZE / 2;
         ballXSpeed = 4;
         ballYSpeed = -4;
+        lives = 3;
         isRunning = true;
         isGameOver = false;
         bricks = new boolean[NUM_BRICKS];
@@ -85,6 +87,9 @@ public class Breakout extends JFrame {
     }
 
     private void drawGame(Graphics g) {
+        g.setColor(Color.WHITE);
+        g.setFont(new Font("Arial", Font.BOLD, 24));
+        g.drawString("Lives: " + lives, 10, 30);
         if (isGameOver) {
             g.setColor(Color.WHITE);
             g.setFont(new Font("Arial", Font.BOLD, 48));
@@ -135,7 +140,15 @@ public class Breakout extends JFrame {
         }
 
         if (ballY + BALL_SIZE >= HEIGHT) {
-            isGameOver = true;
+            lives--;
+    
+            if (lives <= 0) {
+                isGameOver = true;
+            } else {
+                ballX = WIDTH / 2 - BALL_SIZE / 2;
+                ballY = HEIGHT / 2 - BALL_SIZE / 2;
+                paddleX = WIDTH / 2 - PADDLE_WIDTH / 2;
+            }
         }
 
         if (ballY + BALL_SIZE >= HEIGHT - PADDLE_HEIGHT - 10 && ballX + BALL_SIZE >= paddleX &&
