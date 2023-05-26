@@ -21,7 +21,6 @@ public class Breakout extends JFrame {
     private int paddleX;
     private int ballX, ballY;
     private int ballXSpeed, ballYSpeed;
-    private boolean isRunning;
     private boolean isGameOver;
     private boolean[] bricks;
     private int lives;
@@ -39,7 +38,6 @@ public class Breakout extends JFrame {
         ballXSpeed = 4;
         ballYSpeed = -4;
         lives = 3;
-        isRunning = true;
         isGameOver = false;
         bricks = new boolean[NUM_BRICKS];
         for (int i = 0; i < NUM_BRICKS; i++) {
@@ -57,10 +55,6 @@ public class Breakout extends JFrame {
         };
         gamePanel.setPreferredSize(new Dimension(WIDTH, HEIGHT));
         gamePanel.setBackground(Color.BLACK);
-
-        Container container = getContentPane();
-        container.setLayout(new BorderLayout());
-        container.add(gamePanel, BorderLayout.CENTER);
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         pack();
@@ -126,10 +120,6 @@ public class Breakout extends JFrame {
     }
 
     private void updateGame() {
-        if (!isRunning) {
-            return;
-        }
-
         ballX += ballXSpeed;
         ballY += ballYSpeed;
 
