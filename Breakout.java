@@ -3,7 +3,6 @@ import javax.swing.*;
 import java.awt.event.*;
 import javax.swing.border.*;
 
-
 public class Breakout extends JFrame {
     private static final int WIDTH = 950;
     private static final int HEIGHT = 600;
@@ -35,8 +34,8 @@ public class Breakout extends JFrame {
         paddleX = WIDTH / 2 - PADDLE_WIDTH / 2;
         ballX = WIDTH / 2 - BALL_SIZE / 2;
         ballY = HEIGHT / 2 - BALL_SIZE / 2;
-        ballXSpeed = 4;
-        ballYSpeed = -4;
+        ballXSpeed = 5;
+        ballYSpeed = -5;
         lives = 3;
         isGameOver = false;
         bricks = new boolean[NUM_BRICKS];
@@ -57,6 +56,7 @@ public class Breakout extends JFrame {
         gamePanel.setBackground(Color.BLACK);
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        add(gamePanel);
         pack();
         setTitle("Breakout");
         setLocationRelativeTo(null);
