@@ -1,22 +1,35 @@
 import java.awt.*;
 import javax.swing.*;
 import java.awt.event.*;
-import javax.swing.border.*;
+import javax.sound.sampled.*;
 
 public class Breakout extends JFrame {
+    
+    // Dimensions
     private static final int WIDTH = 950;
     private static final int HEIGHT = 600;
+    
+    // Paddle properties
     private static final int PADDLE_WIDTH = 100;
     private static final int PADDLE_HEIGHT = 10;
+    
+    // Ball properties
     private static final int BALL_SIZE = 20;
+    
+    // Brick properties
     private static final int BRICK_WIDTH = 80;
     private static final int BRICK_HEIGHT = 20;
     private static final int NUM_BRICKS = 50;
+    
+    // Game properties
     private static final int FPS = 240;
     private static final int DELAY = 1000 / FPS;
-
+    
+    // Game components
     private JPanel gamePanel;
     private Timer timer;
+    
+    // Game state variables
     private int paddleX;
     private int ballX, ballY;
     private int ballXSpeed, ballYSpeed;
@@ -30,6 +43,7 @@ public class Breakout extends JFrame {
         addListeners();
     }
 
+    // Initializes the game state
     private void initGame() {
         paddleX = WIDTH / 2 - PADDLE_WIDTH / 2;
         ballX = WIDTH / 2 - BALL_SIZE / 2;
@@ -44,6 +58,7 @@ public class Breakout extends JFrame {
         }
     }
 
+    // Initializes the game components and sets their properties
     private void initComponents() {
         gamePanel = new JPanel() {
             @Override
@@ -64,6 +79,7 @@ public class Breakout extends JFrame {
         setVisible(true);
     }
 
+    // Adds event listeners to the game panel and sets up the game timer
     private void addListeners() {
         gamePanel.addMouseMotionListener(new MouseMotionAdapter() {
             @Override
@@ -82,14 +98,17 @@ public class Breakout extends JFrame {
         timer.start();
     }
 
+    // Draws the game elements on the panel
     private void drawGame(Graphics g) {
         g.setColor(Color.WHITE);
         g.setFont(new Font("Arial", Font.BOLD, 24));
         g.drawString("Lives: " + lives, 10, 30);
+
         if (isGameOver) {
             g.setColor(Color.WHITE);
             g.setFont(new Font("Arial", Font.BOLD, 48));
             g.drawString("Game Over", WIDTH / 2 - 120, HEIGHT / 2);
+            playSound("message_for_mr.poole.wav");
             timer.stop();
             return;
         }
@@ -119,6 +138,7 @@ public class Breakout extends JFrame {
         }
     }
 
+    // Updates the game state and performs game logic
     private void updateGame() {
         ballX += ballXSpeed;
         ballY += ballYSpeed;
@@ -133,7 +153,7 @@ public class Breakout extends JFrame {
 
         if (ballY + BALL_SIZE >= HEIGHT) {
             lives--;
-    
+
             if (lives <= 0) {
                 isGameOver = true;
             } else {
@@ -156,9 +176,24 @@ public class Breakout extends JFrame {
                 if (brickRect.intersects(ballRect)) {
                     bricks[i] = false;
                     ballYSpeed = -ballYSpeed;
+                    playSound("bonk.wav");
                     break;
                 }
             }
+        }
+    }
+
+    // Plays a sound file
+    private void playSound(String soundFile) {
+        try {
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(getClass().getResource(soundFile));
+    
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioInputStream);
+    
+            clip.start();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }
